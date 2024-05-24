@@ -1,4 +1,4 @@
-.container {
+/*.container {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
@@ -283,13 +283,15 @@ header {
     padding-bottom: 20px; 
 }
 
-h1 {
+/*h1 {
     font-size: 36px;
     margin: 0;
     padding: 0;
     margin-bottom: -10px; 
 
-}
+}*/
+
+/*
 .aviso strong {
     color: #333;
     font-size: 24px;
@@ -330,3 +332,4 @@ iframe {
     border: none; 
 }
 
+*/
