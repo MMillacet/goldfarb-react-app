@@ -1,18 +1,17 @@
 import React, { useState, ChangeEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface Aviso {
   id: number;
   fecha: string;
   texto: string;
   imagen: string;
+  selector: string;
 }
 
 const Avisos: React.FC = () => {
   const [avisos, setAvisos] = useState<Aviso[]>([]);
   const [formVisible, setFormVisible] = useState(false);
   const [formData, setFormData] = useState({ selector: '', fecha: '', aviso: '', imagen: null as File | null });
-  const navigate = useNavigate();
 
   const toggleFormulario = () => {
     setFormVisible(!formVisible);
@@ -39,7 +38,12 @@ const Avisos: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/list-avisos', { state: { formData } });
+    
+    // Convertir formData a un string JSON y codificarlo en Base64 para pasarlo en la URL
+    const formDataEncoded = btoa(JSON.stringify(formData));
+    
+    // Abrir una nueva pestaña y pasar los datos codificados en la URL
+    window.open(`/list-avisos?data=${formDataEncoded}`, '_blank');
   };
 
   const agregarAviso = () => {
@@ -52,15 +56,11 @@ const Avisos: React.FC = () => {
       const reader = new FileReader();
       reader.onload = function (event) {
         const imagenBase64 = event.target?.result as string;
-        const nuevoAviso = { id: Date.now(), fecha: formData.fecha, texto: formData.aviso, imagen: imagenBase64 };
+        const nuevoAviso = { id: Date.now(), fecha: formData.fecha, texto: formData.aviso, imagen: imagenBase64, selector: formData.selector };
         setAvisos([...avisos, nuevoAviso]);
       };
       reader.readAsDataURL(formData.imagen);
     }
-  };
-
-  const borrarAviso = (id: number) => {
-    setAvisos(avisos.filter((aviso) => aviso.id !== id));
   };
 
   return (
@@ -75,9 +75,9 @@ const Avisos: React.FC = () => {
         </button>
       </div>
       {formVisible && (
-        <form onSubmit={handleSubmit}>
+        <form className="drop-shadow-2xl" onSubmit={handleSubmit}>
           <div id="agregar-aviso-form" className="mb-4 flex justify-center items-center">
-            <div className="bg-white p-8 rounded shadow-md md:w-1/2">
+            <div className="bg-slate-100 p-8 rounded shadow-md md:w-1/2">
               <h2 className="text-2xl mb-4 text-center">Agregar información</h2>
               <select
                 id="selector"
@@ -88,7 +88,7 @@ const Avisos: React.FC = () => {
               >
                 <option value="">Seleccionar opción</option>
                 <option value="Novedades">Novedades</option>
-                <option value="Goldfarb te desea un muy Feliz Cumpleaños!!!">Cumpleaños</option>
+                <option value="GOLDFARB te desea un muy Feliz Cumpleaños!!!">Cumpleaños</option>
                 <option value="Anuncios Importantes">Anuncios Importantes</option>
               </select>
               <input
@@ -117,7 +117,7 @@ const Avisos: React.FC = () => {
               <div className="flex justify-center">
                 <button
                   id="agregar-aviso-btn"
-                  className="bg-green-500 text-white px-4 py-2 rounded"
+                  className="hover:bg-blue-600 bg-blue-500 text-white px-4 py-2 rounded"
                   type="submit"
                 >
                   Agregar Aviso
@@ -132,16 +132,8 @@ const Avisos: React.FC = () => {
         {avisos.map((aviso) => (
           <li key={aviso.id} className="p-4 border-b border-gray-300">
             <strong>{aviso.fecha}</strong> <p>{aviso.texto}</p>
-            <h1>{formData.selector}</h1>
+            <h1>{aviso.selector}</h1>
             {aviso.imagen && <img src={aviso.imagen} alt="Imagen del aviso" className="max-w-xs block h-48 w-48" />}
-            <div className="flex justify-center">
-              <button
-                className="bg-red-500 text-white px-4 py-2 mt-2 rounded"
-                onClick={() => borrarAviso(aviso.id)}
-              >
-                Borrar
-              </button>
-            </div>
           </li>
         ))}
       </ul>
